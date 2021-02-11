@@ -4,6 +4,7 @@ import android.app.Application;
 import android.os.AsyncTask;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -30,8 +31,10 @@ public class NoteRepository {
         new DeleteNoteAsyncTask(noteDao).execute(note);
     }
 
-    public void deleteAllNotes() {
-        new DeleteAllNotesAsyncTask(noteDao).execute();
+    public LiveData<Integer> deleteAllNotes() {
+        DeleteAllNotesAsyncTask task = new DeleteAllNotesAsyncTask(noteDao);
+        task.execute();
+        return task.numOfDeleted;
     }
 
     public LiveData<List<Note>> getAllNotes() {
@@ -81,17 +84,25 @@ public class NoteRepository {
         }
     }
 
-    private static class DeleteAllNotesAsyncTask extends AsyncTask<Void, Void, Void> {
+    private static class DeleteAllNotesAsyncTask extends AsyncTask<Void, Void, Integer> {
         private NoteDao noteDao;
+        public MutableLiveData<Integer> numOfDeleted = new MutableLiveData<>();
+
 
         public DeleteAllNotesAsyncTask(NoteDao noteDao) {
             this.noteDao = noteDao;
         }
 
         @Override
-        protected Void doInBackground(Void... voids) {
-            noteDao.deleteAllNotes();
-            return null;
+        protected Integer doInBackground(Void... voids) {
+            int num = noteDao.deleteAllNotes();
+            return num;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            //super.onPostExecute(integer);
+            numOfDeleted.postValue(integer);
         }
     }
 }

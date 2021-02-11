@@ -137,8 +137,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if(item.getItemId() == R.id.delete_all_notes) {
-            noteViewModel.deleteAllNotes();
-            makeToast("All notes deleted");
+            noteViewModel.deleteAllNotes().observe(this, new Observer<Integer>() {
+                @Override
+                public void onChanged(Integer numOfDeleted) {
+                    if(numOfDeleted == 0) {
+                        makeToast("Nothing to delete");
+                    } else {
+                        makeToast("All notes deleted");
+                    }
+                }
+            });
+
             return true;
         }
         return super.onOptionsItemSelected(item);
