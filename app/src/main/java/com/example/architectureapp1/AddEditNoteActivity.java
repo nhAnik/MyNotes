@@ -18,10 +18,15 @@ public class AddEditNoteActivity extends AppCompatActivity {
     public static final String EXTRA_TITLE = "com.example.architectureapp1.extra_title";
     public static final String EXTRA_DESCRIPTION = "com.example.architectureapp1.extra_description";
     public static final String EXTRA_PRIORITY = "com.example.architectureapp1.extra_priority";
+    public static final String EXTRA_IS_SAME = "com.example.architectureapp1.extra_is_same";
 
     private EditText editTextTitle;
     private EditText editTextDescription;
     private NumberPicker numberPicker;
+
+    private String title;
+    private String description;
+    private int priority;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,9 +45,14 @@ public class AddEditNoteActivity extends AppCompatActivity {
         if(intent.hasExtra(EXTRA_ID) && intent.hasExtra(EXTRA_TITLE) &&
                 intent.hasExtra(EXTRA_PRIORITY) && intent.hasExtra(EXTRA_DESCRIPTION)) {
             setTitle("Edit Note");
-            editTextTitle.setText(intent.getStringExtra(EXTRA_TITLE));
-            editTextDescription.setText(intent.getStringExtra(EXTRA_DESCRIPTION));
-            numberPicker.setValue(intent.getIntExtra(EXTRA_PRIORITY, 1));
+            title = intent.getStringExtra(EXTRA_TITLE);
+            editTextTitle.setText(title);
+
+            description = intent.getStringExtra(EXTRA_DESCRIPTION);
+            editTextDescription.setText(description);
+
+            priority = intent.getIntExtra(EXTRA_PRIORITY, 1);
+            numberPicker.setValue(priority);
         } else {
             setTitle("Add Note");
         }
@@ -65,24 +75,31 @@ public class AddEditNoteActivity extends AppCompatActivity {
     }
 
     private void saveNote() {
-        String title = editTextTitle.getText().toString();
-        String description = editTextDescription.getText().toString();
-        int priority = numberPicker.getValue();
+        String newTitle = editTextTitle.getText().toString();
+        String newDescription = editTextDescription.getText().toString();
+        int newPriority = numberPicker.getValue();
 
-        if(title.trim().isEmpty() || description.trim().isEmpty()) {
+        if(newTitle.trim().isEmpty() || newDescription.trim().isEmpty()) {
             Toast.makeText(this, "Please insert a title and description",
                     Toast.LENGTH_SHORT).show();
             return;
         }
 
         Intent dataIntent = new Intent();
-        dataIntent.putExtra(EXTRA_TITLE, title);
-        dataIntent.putExtra(EXTRA_DESCRIPTION, description);
-        dataIntent.putExtra(EXTRA_PRIORITY, priority);
+        dataIntent.putExtra(EXTRA_TITLE, newTitle);
+        dataIntent.putExtra(EXTRA_DESCRIPTION, newDescription);
+        dataIntent.putExtra(EXTRA_PRIORITY, newPriority);
 
         int id = getIntent().getIntExtra(EXTRA_ID, -1);
         if(id != -1) {
             dataIntent.putExtra(EXTRA_ID, id);
+        }
+
+        if(title != null && title.equals(newTitle)  &&
+                description != null && description.equals(newDescription) && priority == newPriority) {
+            dataIntent.putExtra(EXTRA_IS_SAME, true);
+        } else {
+            dataIntent.putExtra(EXTRA_IS_SAME, false);
         }
 
         setResult(RESULT_OK, dataIntent);

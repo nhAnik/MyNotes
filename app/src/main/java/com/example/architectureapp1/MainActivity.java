@@ -112,12 +112,15 @@ public class MainActivity extends AppCompatActivity {
             String title = data.getStringExtra(AddEditNoteActivity.EXTRA_TITLE);
             String description = data.getStringExtra(AddEditNoteActivity.EXTRA_DESCRIPTION);
             int priority = data.getIntExtra(AddEditNoteActivity.EXTRA_PRIORITY, 1);
+            boolean isSame = data.getBooleanExtra(AddEditNoteActivity.EXTRA_IS_SAME, false);
 
             Note note = new Note(title, description, priority);
             note.setId(id);
             noteViewModel.update(note);
 
-            makeToast("Note updated");
+            if(!isSame) {
+                makeToast("Note updated");
+            }
         }
         else {
             makeToast("Note not saved");
