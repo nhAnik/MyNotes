@@ -10,14 +10,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
@@ -34,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
         setTitle("All Notes");
 
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        final RecyclerView recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -69,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 Note deleteNote = adapter.getNoteAt(viewHolder.getAdapterPosition());
                 noteViewModel.delete(deleteNote);
-                makeToast("Note deleted");
+                showSnackbar(recyclerView, deleteNote);
             }
         }).attachToRecyclerView(recyclerView);
 
@@ -86,8 +89,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, EDIT_NOTE_REQUEST);
             }
         });
-
-
     }
 
     @Override
@@ -151,6 +152,23 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showSnackbar(RecyclerView view, final Note deletedNote) {
+        Snackbar snackbar = Snackbar.make(view, "Note deleted", Snackbar.LENGTH_LONG)
+                .setAction("UNDO", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        noteViewModel.insert(deletedNote);
+                        makeToast("Note restored");
+                    }
+                })
+                .setActionTextColor(Color.RED);
+
+        View snackView = snackbar.getView();
+        TextView textView = snackView.findViewById(com.google.android.material.R.id.snackbar_text);
+        textView.setTextSize(20);
+        snackbar.show();
     }
 
     private void makeToast(String toastText) {
