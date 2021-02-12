@@ -138,17 +138,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if(item.getItemId() == R.id.delete_all_notes) {
-            noteViewModel.deleteAllNotes().observe(this, new Observer<Integer>() {
-                @Override
-                public void onChanged(Integer numOfDeleted) {
-                    if(numOfDeleted == 0) {
-                        makeToast("Nothing to delete");
-                    } else {
-                        makeToast("All notes deleted");
-                    }
-                }
-            });
-
+            showDeleteAllDialog();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -169,6 +159,34 @@ public class MainActivity extends AppCompatActivity {
         TextView textView = snackView.findViewById(com.google.android.material.R.id.snackbar_text);
         textView.setTextSize(20);
         snackbar.show();
+    }
+
+    private void showDeleteAllDialog() {
+        DeleteAllDialog deleteAllDialog = new DeleteAllDialog();
+
+        deleteAllDialog.setListener(new DeleteAllDialog.OnClickDialogButtonListener() {
+            @Override
+            public void onDialogButtonClick(String string) {
+                if(string.equals(getString(R.string.all_delete_dialog_positive))) {
+                    deleteAllNotes();
+                }
+            }
+        });
+
+        deleteAllDialog.show(getSupportFragmentManager(), "DeleteAllDialog");
+    }
+
+    private void deleteAllNotes() {
+        noteViewModel.deleteAllNotes().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer numOfDeleted) {
+                if(numOfDeleted == 0) {
+                    makeToast("Nothing to delete");
+                } else {
+                    makeToast("All notes deleted");
+                }
+            }
+        });
     }
 
     private void makeToast(String toastText) {
